@@ -1,0 +1,27 @@
+
+module tb_clk_gating_controller;
+
+reg en;
+reg clk;
+wire clk_gated;
+
+clock_gating_controller dut(en,clk,clk_gated);
+
+initial
+begin
+clk = 0;
+end
+
+always #5 clk = ~clk;
+
+initial
+begin
+    en = 0; #20;
+    en = 1; #50;  // Gated ON
+    en = 0; #50;  // Gated OFF
+    en = 1; #50;
+
+//     $display("FINAL: clk=%b, en=%b, clk_gated=%b", clk, en, clk_gated);
+    #20 $finish;
+end 
+endmodule
