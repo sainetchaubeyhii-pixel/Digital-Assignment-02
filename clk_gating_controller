@@ -1,0 +1,14 @@
+module clock_gating_controller(
+input en,clk,
+output clk_gated
+    );
+    reg en_latch;
+    
+    always@(negedge clk) begin // ~clk
+    en_latch <= en;
+    end
+    
+   
+   assign clk_gated = clk & en_latch; 
+
+endmodule
