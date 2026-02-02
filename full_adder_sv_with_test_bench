@@ -1,0 +1,88 @@
+
+module full_adder_sv(
+
+input logic a,b,cin,
+output logic sum,cout
+);
+
+`ifdef struct
+wire w1,w2,w3;
+
+xor x1(w1,a,b);
+xor x2(sum,w1,cin);
+and a1(w3,a,b);
+and a2(w2,w1,cin);
+or o1(cout,w2,w3);
+
+initial $display("Gate level %d %d ",sum ,cout);
+
+`elseif data_flow  // contineous assignment 
+assign sum = a ^ b ^ c;
+assign cout = (a&b) | cin&(a^b);
+initial $display("sum = %0d, carry = %0d,sum,cout);
+
+`else 
+//behavioural 
+always_comb begin //prodedural block
+sum = a ^ b ^ cin;
+cout = (a&b) | (b&cin) | (cin&a);
+end
+
+initial $display("sum = %0d, carry= %0d",sum,cout);
+`endif
+endmodule
+
+
+
+
+
+// testbench for full adder
+
+
+
+module testbench_fa;
+logic a;
+logic b;
+logic cin;
+logic sum;
+logic cout;
+
+full_adder_sv dut(.a(a),.b(b),.cin(cin),.sum(sum),.cout(cout));
+
+initial begin
+$display("start adder");
+
+#100;
+
+$display("finish_adder");
+$finish;
+
+end
+
+initial begin
+$monitor("t = %0t | sum  = %b , cout = %b",$time, sum , cout);
+a = 0 ; b = 0; cin = 0;
+#20;
+a = 0 ; b = 1; cin = 0;
+#20;
+a = 0 ; b = 1; cin = 1;
+#20;
+a = 1 ; b = 0; cin = 0;
+#20;
+a = 1; b = 0; cin = 1;
+#20;
+
+
+$finish;
+end
+endmodule
+
+
+// output of our testbench
+start adder
+t = 0 | sum  = 0 , cout = 0
+t = 20000 | sum  = 1 , cout = 0
+t = 40000 | sum  = 0 , cout = 1
+t = 60000 | sum  = 1 , cout = 0
+t = 80000 | sum  = 0 , cout = 1
+finish_adder
