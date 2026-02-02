@@ -1,0 +1,21 @@
+
+interface intf_ex;
+  logic clk;
+  logic req;
+  logic addr;
+  logic ready;
+
+  modport master (
+    input  clk,
+    output req,
+    output addr,
+    input  ready
+  );
+
+  modport slave (
+    input  clk,
+    input  req,
+    input  addr,
+    output ready
+  );
+endinterface
