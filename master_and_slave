@@ -1,0 +1,43 @@
+// code for master_1.sv
+
+module master_1(intf_ex.master inf);
+
+  always_ff @(posedge inf.clk) begin
+    inf.req  <= 1'b1;
+    inf.addr <= 1'b1;
+  end
+
+endmodule
+
+
+
+
+//code for slave_1.sv
+
+module slave_1(intf_ex.slave in2);
+
+always_ff @(posedge in2.clk) begin 
+if(in2.req)
+in2.ready <= 1'b1;
+else
+in2.ready <= 0;
+end
+endmodule
+
+
+
+
+//top module for master_slave_handshake.sv
+
+module modport1();
+intf_ex intf1(); // interface instance\
+
+master_1 m1(intf1);
+slave_1 s1(intf1);
+   //clk
+   initial begin
+   intf1.clk = 0;
+   forever #5 intf1.clk = ~intf1.clk;
+   end
+   
+endmodule
