@@ -41,3 +41,61 @@ slave_1 s1(intf1);
    end
    
 endmodule
+
+
+
+
+// testbench
+
+module testbench;
+// instantiate the dut from out top module
+modport1 dut();
+
+//simulation control
+initial
+begin
+$display("simulation begin");
+
+#100;
+
+$display("simulation finished");
+$finish;
+
+end
+
+
+initial
+begin
+$monitor(" T = %0t | clk = %b, req = %b, addr = %b", 
+            $time,dut.intf1.clk,
+            dut.intf1.req,
+            dut.intf1.addr,
+            dut.intf1.ready);
+
+end
+endmodule
+
+// output of testbench
+simulation begin
+ T = 0 | clk = 0, req = x, addr = xx
+ T = 5000 | clk = 1, req = 1, addr = 10
+ T = 10000 | clk = 0, req = 1, addr = 10
+ T = 15000 | clk = 1, req = 1, addr = 11
+ T = 20000 | clk = 0, req = 1, addr = 11
+ T = 25000 | clk = 1, req = 1, addr = 11
+ T = 30000 | clk = 0, req = 1, addr = 11
+ T = 35000 | clk = 1, req = 1, addr = 11
+ T = 40000 | clk = 0, req = 1, addr = 11
+ T = 45000 | clk = 1, req = 1, addr = 11
+ T = 50000 | clk = 0, req = 1, addr = 11
+ T = 55000 | clk = 1, req = 1, addr = 11
+ T = 60000 | clk = 0, req = 1, addr = 11
+ T = 65000 | clk = 1, req = 1, addr = 11
+ T = 70000 | clk = 0, req = 1, addr = 11
+ T = 75000 | clk = 1, req = 1, addr = 11
+ T = 80000 | clk = 0, req = 1, addr = 11
+ T = 85000 | clk = 1, req = 1, addr = 11
+ T = 90000 | clk = 0, req = 1, addr = 11
+ T = 95000 | clk = 1, req = 1, addr = 11
+simulation finished
+
