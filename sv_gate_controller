@@ -13,3 +13,41 @@ output logic clk_gated
     assign clk_gated = clk & en_latch;
     
 endmodule
+
+
+//testbench for SV_gate_controller
+
+module tb_gate_controller;
+logic enb;
+logic clk;
+logic clk_gated;
+
+
+SV_gate_controller dut(.enb(enb),.clk(clk),.clk_gated(clk_gated));
+
+initial begin
+clk = 0;
+forever #5 clk = ~clk;
+end
+
+initial
+begin
+enb = 0;
+#10;
+
+enb = 1'b1;
+#40;
+enb = 0;
+#20;
+enb = 1'b1;
+#40;
+
+end
+
+// internal register ko show krne ke liye
+initial begin
+  $dumpfile("SV_gate_controller.vcd");
+  $dumpvars(0, tb_gate_controller);
+end
+
+endmodule
