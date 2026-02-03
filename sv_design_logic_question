@@ -1,0 +1,84 @@
+
+module SV_design_logic(
+
+    input logic clk,
+    input logic rst,
+    input logic event01,
+    output logic data_out
+);
+
+    logic captured; // remembers if first event already happened
+
+    always_ff@(posedge clk) begin
+        if (rst) begin
+            captured <= 1'b0;
+            data_out <= 1'b0;
+        end
+        else if (event01 && !captured) begin
+            data_out <= 1'b1;   // capture first event
+            captured <= 1'b1;   // lock further events
+        end
+        else begin
+            data_out <= 1'b0;   // ignore further events
+        end
+    end
+
+endmodule
+
+
+//testbench
+
+module testbech_logic_design;
+
+logic clk;
+logic rst;
+logic event01;
+logic data_out;
+
+SV_design_logic dut(.clk(clk),.rst(rst),.event01(event01),.data_out(data_out));
+
+
+initial begin
+clk =0;
+forever #5 clk = ~clk;
+end
+
+
+initial
+begin
+rst = 1'b1;
+  event01 = 1'b0;
+#15;
+
+rst = 1'b0;
+event01 = 1'b1;
+#10;
+
+event01 = 1'b0;
+#10;
+event01 = 1'b1;
+#10;
+
+event01 = 1'b0;
+#10;
+
+event01 = 1'b1;
+#10;
+rst = 1'b1;
+#10;
+rst = 1'b0;
+event01 = 1'b0;
+#10;
+event01 = 1'b0;
+#10;
+
+event01 = 1'b1;
+#80;
+
+$finish;
+
+end
+initial
+  $monitor("t=%0t clk=%b rst=%b event01=%b data_out=%b",
+            $time, clk, rst, event01, data_out);
+endmodule
