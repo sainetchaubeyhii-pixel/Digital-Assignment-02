@@ -1,0 +1,15 @@
+
+module SV_gate_controller(
+input logic enb,clk,
+output logic clk_gated
+    );
+//    reg en_latch;
+   logic en_latch;
+   
+    always_ff@(negedge clk) begin
+    en_latch <= enb;
+    end
+    
+    assign clk_gated = clk & en_latch;
+    
+endmodule
