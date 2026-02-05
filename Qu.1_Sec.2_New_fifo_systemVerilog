@@ -1,0 +1,143 @@
+//binary to grey code converter 
+module b_to_g(
+    input  [3:0] binary,
+    output [3:0] grey
+    );
+    
+    assign grey = binary ^ (binary>>1);
+    
+endmodule
+
+// fifo code
+
+module new_fifo_sv(
+    input logic wrt_clk,
+    input logic rd_clk,
+    input logic rd_rst,
+    input logic wrt_rst,
+    input logic[7:0] data_in,
+    input logic wrt_en,
+    input logic rd_en,
+    output logic [7:0] data_out,
+    output logic full,
+    output logic empty
+    );
+    
+    logic [7:0] mem [0:7];
+    logic [3:0] wrt_ptr, rd_ptr;
+
+    logic [3:0] rd_ptr_gray;                  // convert binary to gray    
+    b_to_g rd1(rd_ptr,rd_ptr_gray);  
+                //input logic//output
+    logic [3:0] wrt_ptr_gray;                  // convert binary to gray    
+    b_to_g wrt1(wrt_ptr,wrt_ptr_gray);     
+                //input logic//output 
+   
+    assign empty = (rd_ptr_gray == wrt_ptr_gray); // yahan empty one ho jayega
+    assign full = (wrt_ptr_gray == {~rd_ptr_gray[3:2],rd_ptr_gray[1:0]});
+       
+       // reading data from memory and updating read pointer
+    always_ff@(posedge rd_clk or posedge rd_rst)
+    begin
+        if(rd_rst)
+        begin
+            data_out <= 0;
+            rd_ptr   <= 0;
+        end
+        else if(rd_en && !empty)
+        begin
+            data_out = mem[rd_ptr[2:0]];
+            rd_ptr = rd_ptr + 1'b1;
+        end
+    end
+    
+       
+   //Writing data_in on mem and updating write pointer      
+    always_ff@(posedge wrt_clk or posedge wrt_rst) //no reset because mem is never resetted and data_in doesn't reset
+    begin
+        if(wrt_rst)
+            wrt_ptr <= 0;
+        else if(wrt_en && !full)
+        begin
+            mem[wrt_ptr[2:0]] = data_in;
+            wrt_ptr = wrt_ptr + 1'b1;
+        end
+    end                         
+endmodule
+
+
+//TESTBENCH
+
+module testbench_fifo_new;
+
+   logic            wrt_clk;
+    logic            rd_clk;
+    logic            rd_rst;
+    logic            wrt_rst;
+    logic      [7:0] data_in;
+    logic            wrt_en;
+    logic            rd_en;
+    logic [7:0] data_out;
+    logic          full;
+    logic          empty;
+    
+new_fifo_sv dut(wrt_clk,rd_clk,rd_rst,wrt_rst,data_in,wrt_en,rd_en,data_out,full,empty);
+
+initial
+begin
+{wrt_clk,rd_clk,rd_rst,wrt_rst,data_in,wrt_en,rd_en} = 0;
+end
+
+initial
+begin
+forever #6.62 wrt_clk = ~wrt_clk; //freq 75 mhz
+end
+
+
+initial
+begin
+forever #20 rd_clk = ~rd_clk; //freq 25mhz
+end
+
+initial
+begin
+rd_rst = 1'b1;
+wrt_rst = 1'b1;
+#10;
+rd_rst = 0;
+wrt_rst = 0;
+
+wrt_en = 1'b1;
+data_in = 8'd5;
+#40;
+wrt_en = 1'b1;
+data_in = 8'd10;
+#40;
+wrt_en = 1'b1;
+data_in = 8'd5;
+#40;
+wrt_en = 1'b1;
+data_in = 8'd10;
+#40;
+wrt_en = 1'b1;
+data_in = 8'd5;
+#40;
+wrt_en = 1'b1;
+data_in = 8'd10;
+#40;
+wrt_en = 1'b1;
+data_in = 8'd5;
+#40;
+wrt_en = 1'b1;
+data_in = 8'd10;
+#40;
+wrt_en = 0;
+#200;
+rd_en = 1'b1;
+#100;
+
+#1000 $finish;
+
+end
+
+endmodule
